@@ -374,6 +374,7 @@ class LTChar(LTComponent, LTText):
         self._text = text
         self.matrix = matrix
         self.fontname = font.fontname
+        self.font = font
         self.ncs = ncs
         self.graphicstate = graphicstate
         self.adv = textwidth * fontsize * scaling

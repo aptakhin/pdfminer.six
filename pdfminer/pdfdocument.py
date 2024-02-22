@@ -721,12 +721,12 @@ class PDFDocument:
             pos = self.find_xref(parser)
             self.read_xref_from(parser, pos, self.xrefs)
         except PDFNoValidXRef:
-            if fallback:
-                parser.fallback = True
-                newxref = PDFXRefFallback()
-                newxref.load(parser)
-                self.xrefs.append(newxref)
-
+            fallback = True
+        if fallback:
+            parser.fallback = True
+            newxref = PDFXRefFallback()
+            newxref.load(parser)
+            self.xrefs.append(newxref)
         for xref in self.xrefs:
             trailer = xref.get_trailer()
             if not trailer:
@@ -850,6 +850,8 @@ class PDFDocument:
         if not self.xrefs:
             raise PDFException("PDFDocument is not initialized")
         log.debug("getobj: objid=%r", objid)
+        if objid == 3:
+            p = 0
         if objid in self._cached_objs:
             (obj, genno) = self._cached_objs[objid]
         else:

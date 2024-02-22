@@ -953,6 +953,7 @@ class PDFSimpleFont(PDFFont):
         # Font encoding is specified either by a name of
         # built-in encoding or a dictionary that describes
         # the differences.
+        self.spec = spec
         if "Encoding" in spec:
             encoding = resolve1(spec["Encoding"])
         else:
@@ -972,13 +973,37 @@ class PDFSimpleFont(PDFFont):
         return
 
     def to_unichr(self, cid: int) -> str:
+        def print_nested(obj, depth):
+            print(' ' * depth, obj)
+            if isinstance(obj, dict):
+                for i, v in obj.items():
+                    from pdfminer.pdftypes import PDFObjRef
+                    if isinstance(v, PDFObjRef):
+                        # pass
+                        print_nested(v.resolve(), depth + 1)
+                    elif isinstance(v, PDFStream):
+                        print(v)
+                    else:
+                        pass
+                        print(' ' * (depth + 1), i, '=', v)
+        if isinstance(self, PDFType1Font) and cid == 128:
+            p = 0
+            # print(cid, self.cid2unicode.get(cid), type(self), id(self))
+            # print('  SPEC')
+            # print_nested(self.spec, depth=2)
         if self.unicode_map:
             try:
-                return self.unicode_map.get_unichr(cid)
+                x = self.unicode_map.get_unichr(cid)
+                if ord(x) == 8364:
+                    p = 0
+                return x
             except KeyError:
                 pass
         try:
-            return self.cid2unicode[cid]
+            x = self.cid2unicode[cid]
+            if ord(x) == 8364:
+                p = 0
+            return x
         except KeyError:
             raise PDFUnicodeNotDefined(None, cid)
 
@@ -1003,6 +1028,7 @@ class PDFType1Font(PDFSimpleFont):
             width_list = list_value(spec.get("Widths", [0] * 256))
             widths = {i + firstchar: resolve1(w) for (i, w) in enumerate(width_list)}
         PDFSimpleFont.__init__(self, descriptor, widths, spec)
+        # print('StreamValue', descriptor, spec.get('Encoding'), descriptor.get('FontFile'))
         if "Encoding" not in spec and "FontFile" in descriptor:
             # try to recover the missing encoding info from the font file.
             self.fontfile = stream_value(descriptor.get("FontFile"))
@@ -1035,6 +1061,7 @@ class PDFType3Font(PDFSimpleFont):
         self.matrix = cast(Matrix, tuple(list_value(spec.get("FontMatrix"))))
         (_, self.descent, _, self.ascent) = self.bbox
         (self.hscale, self.vscale) = apply_matrix_norm(self.matrix, (1, 1))
+        self.spec = spec
         return
 
     def __repr__(self) -> str:

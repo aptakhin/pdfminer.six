@@ -201,6 +201,8 @@ class PDFResourceManager:
             font = self._cached_fonts[objid]
         else:
             log.debug("get_font: create: objid=%r, spec=%r", objid, spec)
+            if objid == 10:
+                p = 0
             if settings.STRICT:
                 if spec["Type"] is not LITERAL_FONT:
                     raise PDFFontError("Type is not /Font")
@@ -385,8 +387,8 @@ class PDFPageInterpreter:
             elif k == "ColorSpace":
                 for (csid, spec) in dict_value(v).items():
                     colorspace = get_colorspace(resolve1(spec))
-                    if colorspace is not None:
-                        self.csmap[csid] = colorspace
+                    #if colorspace is not None:
+                    #    self.csmap[csid] = colorspace
             elif k == "ProcSet":
                 self.rsrcmgr.get_procset(list_value(v))
             elif k == "XObject":
@@ -651,48 +653,48 @@ class PDFPageInterpreter:
 
     def do_G(self, gray: PDFStackT) -> None:
         """Set gray level for stroking operations"""
-        self.graphicstate.scolor = cast(float, gray)
-        self.scs = self.csmap["DeviceGray"]
+        #self.graphicstate.scolor = cast(float, gray)
+        #self.scs = self.csmap["DeviceGray"]
         return
 
     def do_g(self, gray: PDFStackT) -> None:
         """Set gray level for nonstroking operations"""
-        self.graphicstate.ncolor = cast(float, gray)
-        self.ncs = self.csmap["DeviceGray"]
+        #self.graphicstate.ncolor = cast(float, gray)
+        #self.ncs = self.csmap["DeviceGray"]
         return
 
     def do_RG(self, r: PDFStackT, g: PDFStackT, b: PDFStackT) -> None:
         """Set RGB color for stroking operations"""
-        self.graphicstate.scolor = (cast(float, r), cast(float, g), cast(float, b))
-        self.scs = self.csmap["DeviceRGB"]
+        #self.graphicstate.scolor = (cast(float, r), cast(float, g), cast(float, b))
+        #self.scs = self.csmap["DeviceRGB"]
         return
 
     def do_rg(self, r: PDFStackT, g: PDFStackT, b: PDFStackT) -> None:
         """Set RGB color for nonstroking operations"""
-        self.graphicstate.ncolor = (cast(float, r), cast(float, g), cast(float, b))
-        self.ncs = self.csmap["DeviceRGB"]
+        #self.graphicstate.ncolor = (cast(float, r), cast(float, g), cast(float, b))
+        #self.ncs = self.csmap["DeviceRGB"]
         return
 
     def do_K(self, c: PDFStackT, m: PDFStackT, y: PDFStackT, k: PDFStackT) -> None:
         """Set CMYK color for stroking operations"""
-        self.graphicstate.scolor = (
-            cast(float, c),
-            cast(float, m),
-            cast(float, y),
-            cast(float, k),
-        )
-        self.scs = self.csmap["DeviceCMYK"]
+        #self.graphicstate.scolor = (
+        #    cast(float, c),
+        #    cast(float, m),
+        #    cast(float, y),
+        #    cast(float, k),
+        #)
+        #self.scs = self.csmap["DeviceCMYK"]
         return
 
     def do_k(self, c: PDFStackT, m: PDFStackT, y: PDFStackT, k: PDFStackT) -> None:
         """Set CMYK color for nonstroking operations"""
-        self.graphicstate.ncolor = (
-            cast(float, c),
-            cast(float, m),
-            cast(float, y),
-            cast(float, k),
-        )
-        self.ncs = self.csmap["DeviceCMYK"]
+        #self.graphicstate.ncolor = (
+        #    cast(float, c),
+        #    cast(float, m),
+        #    cast(float, y),
+        #    cast(float, k),
+        #)
+        #self.ncs = self.csmap["DeviceCMYK"]
         return
 
     def do_SCN(self) -> None:
@@ -703,7 +705,8 @@ class PDFPageInterpreter:
             if settings.STRICT:
                 raise PDFInterpreterError("No colorspace specified!")
             n = 1
-        self.graphicstate.scolor = cast(Color, self.pop(n))
+        #self.graphicstate.scolor = cast(Color, self.pop(n))
+        self.pop(n)
         return
 
     def do_scn(self) -> None:
@@ -714,7 +717,8 @@ class PDFPageInterpreter:
             if settings.STRICT:
                 raise PDFInterpreterError("No colorspace specified!")
             n = 1
-        self.graphicstate.ncolor = cast(Color, self.pop(n))
+        #self.graphicstate.ncolor = cast(Color, self.pop(n))
+        self.pop(n)
         return
 
     def do_SC(self) -> None:
@@ -899,6 +903,7 @@ class PDFPageInterpreter:
                 raise PDFInterpreterError("No font specified!")
             return
         assert self.ncs is not None
+        # DIFFFFFFFF
         self.device.render_string(
             self.textstate, cast(PDFTextSeq, seq), self.ncs, self.graphicstate.copy()
         )
@@ -938,7 +943,7 @@ class PDFPageInterpreter:
 
     def do_EI(self, obj: PDFStackT) -> None:
         """End inline image object"""
-        if isinstance(obj, PDFStream) and "W" in obj and "H" in obj:
+        if "W" in obj and "H" in obj:
             iobjid = str(id(obj))
             self.device.begin_figure(iobjid, (0, 0, 1, 1), MATRIX_IDENTITY)
             self.device.render_image(iobjid, obj)
@@ -1029,6 +1034,8 @@ class PDFPageInterpreter:
                 break
             if isinstance(obj, PSKeyword):
                 name = keyword_name(obj)
+                if name == 'EM':
+                    name = 'EMC'
                 method = "do_%s" % name.replace("*", "_a").replace('"', "_w").replace(
                     "'", "_q"
                 )
@@ -1046,7 +1053,8 @@ class PDFPageInterpreter:
                 else:
                     if settings.STRICT:
                         error_msg = "Unknown operator: %r" % name
-                        raise PDFInterpreterError(error_msg)
+                        log.debug(error_msg)
+                        # raise PDFInterpreterError(error_msg)
             else:
                 self.push(obj)
         return

@@ -1,3 +1,4 @@
+import hashlib
 import logging
 from io import BytesIO
 from typing import BinaryIO, TYPE_CHECKING, Optional, Union
@@ -123,14 +124,17 @@ class PDFParser(PSStackParser[Union[PSKeyword, PDFStream, PDFObjRef, None]]):
             self.seek(pos + objlen)
             # XXX limit objlen not to exceed object boundary
             log.debug(
-                "Stream: pos=%d, objlen=%d, dic=%r, data=%r...",
+                "Stream: pos=%d, objlen=%d, dic=%r, data=%r, hash=%r...",
                 pos,
                 objlen,
                 dic,
-                data[:10],
+                bytes(data[:10]),
+                hashlib.sha256(data).hexdigest(),
             )
             assert self.doc is not None
-            stream = PDFStream(dic, bytes(data), self.doc.decipher)
+            if len(bytes(data)) == 34519:
+                p = 0
+            stream = PDFStream(dic, data, self.doc.decipher)
             self.push((pos, stream))
 
         else:

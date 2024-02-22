@@ -1034,8 +1034,6 @@ class PDFPageInterpreter:
                 break
             if isinstance(obj, PSKeyword):
                 name = keyword_name(obj)
-                if name == 'EM':
-                    name = 'EMC'
                 method = "do_%s" % name.replace("*", "_a").replace('"', "_w").replace(
                     "'", "_q"
                 )

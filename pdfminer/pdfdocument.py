@@ -721,12 +721,12 @@ class PDFDocument:
             pos = self.find_xref(parser)
             self.read_xref_from(parser, pos, self.xrefs)
         except PDFNoValidXRef:
-            if fallback:
-                parser.fallback = True
-                newxref = PDFXRefFallback()
-                newxref.load(parser)
-                self.xrefs.append(newxref)
-
+            fallback = True
+        if fallback:
+            parser.fallback = True
+            newxref = PDFXRefFallback()
+            newxref.load(parser)
+            self.xrefs.append(newxref)
         for xref in self.xrefs:
             trailer = xref.get_trailer()
             if not trailer:

@@ -7,6 +7,7 @@ with open(root_dir / "README.md", "rt") as f:
 
 setup(
     name="pdfminer.six",
+    version="20240222",
     setuptools_git_versioning={
         "enabled": True,
     },

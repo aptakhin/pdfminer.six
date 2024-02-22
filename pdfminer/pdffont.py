@@ -1000,10 +1000,7 @@ class PDFSimpleFont(PDFFont):
             except KeyError:
                 pass
         try:
-            x = self.cid2unicode[cid]
-            if ord(x) == 8364:
-                p = 0
-            return x
+            return self.cid2unicode[cid]
         except KeyError:
             raise PDFUnicodeNotDefined(None, cid)
 

@@ -196,6 +196,8 @@ class PDFXRef(PDFBaseXRef):
             (_, dic) = x[0]
         self.trailer.update(dict_value(dic))
         log.debug("trailer=%r", self.trailer)
+        if self.trailer['Size'] == 263:
+            p = 0
 
     def get_trailer(self) -> Dict[str, Any]:
         return self.trailer

@@ -530,7 +530,7 @@ class PSBaseParser:
             self.fillbuf()
             self.charpos = self._parse1(self.buf, self.charpos)
         token = self._tokens.pop(0)
-        # log.debug("nexttoken: %r", token)
+        log.debug("nexttoken: %r", token)
         return token
 
 

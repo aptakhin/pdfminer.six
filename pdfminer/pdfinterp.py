@@ -387,8 +387,8 @@ class PDFPageInterpreter:
             elif k == "ColorSpace":
                 for (csid, spec) in dict_value(v).items():
                     colorspace = get_colorspace(resolve1(spec))
-                    #if colorspace is not None:
-                    #    self.csmap[csid] = colorspace
+                    if colorspace is not None:
+                       self.csmap[csid] = colorspace
             elif k == "ProcSet":
                 self.rsrcmgr.get_procset(list_value(v))
             elif k == "XObject":
@@ -653,48 +653,48 @@ class PDFPageInterpreter:
 
     def do_G(self, gray: PDFStackT) -> None:
         """Set gray level for stroking operations"""
-        #self.graphicstate.scolor = cast(float, gray)
-        #self.scs = self.csmap["DeviceGray"]
+        self.graphicstate.scolor = cast(float, gray)
+        self.scs = self.csmap["DeviceGray"]
         return
 
     def do_g(self, gray: PDFStackT) -> None:
         """Set gray level for nonstroking operations"""
-        #self.graphicstate.ncolor = cast(float, gray)
-        #self.ncs = self.csmap["DeviceGray"]
+        self.graphicstate.ncolor = cast(float, gray)
+        self.ncs = self.csmap["DeviceGray"]
         return
 
     def do_RG(self, r: PDFStackT, g: PDFStackT, b: PDFStackT) -> None:
         """Set RGB color for stroking operations"""
-        #self.graphicstate.scolor = (cast(float, r), cast(float, g), cast(float, b))
-        #self.scs = self.csmap["DeviceRGB"]
+        self.graphicstate.scolor = (cast(float, r), cast(float, g), cast(float, b))
+        self.scs = self.csmap["DeviceRGB"]
         return
 
     def do_rg(self, r: PDFStackT, g: PDFStackT, b: PDFStackT) -> None:
         """Set RGB color for nonstroking operations"""
-        #self.graphicstate.ncolor = (cast(float, r), cast(float, g), cast(float, b))
-        #self.ncs = self.csmap["DeviceRGB"]
+        self.graphicstate.ncolor = (cast(float, r), cast(float, g), cast(float, b))
+        self.ncs = self.csmap["DeviceRGB"]
         return
 
     def do_K(self, c: PDFStackT, m: PDFStackT, y: PDFStackT, k: PDFStackT) -> None:
         """Set CMYK color for stroking operations"""
-        #self.graphicstate.scolor = (
-        #    cast(float, c),
-        #    cast(float, m),
-        #    cast(float, y),
-        #    cast(float, k),
-        #)
-        #self.scs = self.csmap["DeviceCMYK"]
+        self.graphicstate.scolor = (
+           cast(float, c),
+           cast(float, m),
+           cast(float, y),
+           cast(float, k),
+        )
+        self.scs = self.csmap["DeviceCMYK"]
         return
 
     def do_k(self, c: PDFStackT, m: PDFStackT, y: PDFStackT, k: PDFStackT) -> None:
         """Set CMYK color for nonstroking operations"""
-        #self.graphicstate.ncolor = (
-        #    cast(float, c),
-        #    cast(float, m),
-        #    cast(float, y),
-        #    cast(float, k),
-        #)
-        #self.ncs = self.csmap["DeviceCMYK"]
+        self.graphicstate.ncolor = (
+           cast(float, c),
+           cast(float, m),
+           cast(float, y),
+           cast(float, k),
+        )
+        self.ncs = self.csmap["DeviceCMYK"]
         return
 
     def do_SCN(self) -> None:
@@ -705,8 +705,7 @@ class PDFPageInterpreter:
             if settings.STRICT:
                 raise PDFInterpreterError("No colorspace specified!")
             n = 1
-        #self.graphicstate.scolor = cast(Color, self.pop(n))
-        self.pop(n)
+        self.graphicstate.scolor = cast(Color, self.pop(n))
         return
 
     def do_scn(self) -> None:
@@ -717,8 +716,7 @@ class PDFPageInterpreter:
             if settings.STRICT:
                 raise PDFInterpreterError("No colorspace specified!")
             n = 1
-        #self.graphicstate.ncolor = cast(Color, self.pop(n))
-        self.pop(n)
+        self.graphicstate.ncolor = cast(Color, self.pop(n))
         return
 
     def do_SC(self) -> None:
@@ -1043,6 +1041,9 @@ class PDFPageInterpreter:
                     if nargs:
                         args = self.pop(nargs)
                         log.debug("exec: %s %r", name, args)
+                        if name == 'cs':
+                            if args[0].name == 'Cs8':
+                                p = 0
                         if len(args) == nargs:
                             func(*args)
                     else:

@@ -961,9 +961,12 @@ class PDFSimpleFont(PDFFont):
         if isinstance(encoding, dict):
             name = literal_name(encoding.get("BaseEncoding", LITERAL_STANDARD_ENCODING))
             diff = list_value(encoding.get("Differences", []))
+            log.debug('Custom %r %r', name, diff)
             self.cid2unicode = EncodingDB.get_encoding(name, diff)
         else:
             self.cid2unicode = EncodingDB.get_encoding(literal_name(encoding))
+        log.debug('spec %r', self.spec)
+        log.debug('cid2unicode %r', self.cid2unicode)
         self.unicode_map: Optional[UnicodeMap] = None
         if "ToUnicode" in spec:
             strm = stream_value(spec["ToUnicode"])
@@ -986,11 +989,8 @@ class PDFSimpleFont(PDFFont):
                     else:
                         pass
                         print(' ' * (depth + 1), i, '=', v)
-        if isinstance(self, PDFType1Font) and cid == 128:
+        if cid == 0:
             p = 0
-            # print(cid, self.cid2unicode.get(cid), type(self), id(self))
-            # print('  SPEC')
-            # print_nested(self.spec, depth=2)
         if self.unicode_map:
             try:
                 x = self.unicode_map.get_unichr(cid)

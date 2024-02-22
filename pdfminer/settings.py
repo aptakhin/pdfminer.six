@@ -1,1 +1,1 @@
-STRICT = False
+STRICT = True

@@ -90,7 +90,7 @@ class PSKeyword(PSObject):
 
     def __repr__(self) -> str:
         name = self.name
-        return "/%r" % name
+        return "%s" % name.decode('utf-8')
 
 
 _SymbolT = TypeVar("_SymbolT", PSLiteral, PSKeyword)
@@ -530,7 +530,7 @@ class PSBaseParser:
             self.fillbuf()
             self.charpos = self._parse1(self.buf, self.charpos)
         token = self._tokens.pop(0)
-        log.debug("nexttoken: %r", token)
+        # log.debug("nexttoken: %r", token)
         return token
 
 

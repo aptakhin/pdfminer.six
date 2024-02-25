@@ -7,10 +7,7 @@ with open(root_dir / "README.md", "rt") as f:
 
 setup(
     name="pdfminer.six",
-    setuptools_git_versioning={
-        "enabled": True,
-    },
-    setup_requires=["setuptools-git-versioning<2"],
+    version="20240222",
     packages=["pdfminer"],
     package_data={"pdfminer": ["cmap/*.pickle.gz", "py.typed"]},
     install_requires=[

@@ -60,10 +60,15 @@ class PDFPage:
         self.resources: Dict[object, object] = resolve1(
             self.attrs.get("Resources", dict())
         )
+        mediabox_attributes = self.attrs["MediaBox"]
+        if not isinstance(mediabox_attributes, list):
+            mediabox_attributes = [mediabox_attributes]
         mediabox_params: List[Any] = [
-            resolve1(mediabox_param) for mediabox_param in self.attrs["MediaBox"]
+            resolve1(mediabox_param) for mediabox_param in mediabox_attributes
         ]
         self.mediabox: Rect = resolve1(mediabox_params)
+        if isinstance(self.mediabox[0], list):
+            self.mediabox = self.mediabox[0]
         if "CropBox" in self.attrs:
             self.cropbox: Rect = resolve1(self.attrs["CropBox"])
         else:
